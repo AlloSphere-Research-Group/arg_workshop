@@ -28,7 +28,7 @@ struct MyApp : App {
     shaderManager.add("texture", "3_texture.vert", "3_texture.frag");
 
     // loadImage("path_to_image");
-    loadImage(searchPaths.find("ufizzi.jpg").filepath());
+    loadImage(searchPaths.find("pattern.png").filepath());
 
     addTexSphere(mesh);
     mesh.update();

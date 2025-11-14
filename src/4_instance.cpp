@@ -39,7 +39,7 @@ struct MyApp : App {
     shaderManager.add("instance", "4_instance.vert", "4_instance.frag");
 
     // loadImage("path_to_image");
-    loadImage(searchPaths.find("ufizzi.jpg").filepath());
+    loadImage(searchPaths.find("pattern.png").filepath());
 
     addTexSphere(mesh, 1);
     mesh.update();

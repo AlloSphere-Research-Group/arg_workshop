@@ -22,11 +22,13 @@ endif()
 
 # add source files to executable
 # add_executable(${APP_NAME} src/0_vaomesh.cpp)
+
 # add_executable(${APP_NAME} src/1_shader_quad.cpp)
 # add_executable(${APP_NAME} src/2_shader_mesh.cpp)
 # add_executable(${APP_NAME} src/3_shader_texture.cpp)
-# add_executable(${APP_NAME} src/4_instance.cpp)
-add_executable(${APP_NAME} src/5_code_structure.cpp src/moreSrc.cpp)
+add_executable(${APP_NAME} src/4_instance.cpp)
+
+# add_executable(${APP_NAME} src/5_code_structure.cpp src/moreSrc.cpp)
 target_include_directories(${APP_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
 
 # add allolib to project & link
