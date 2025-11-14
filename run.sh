@@ -9,5 +9,5 @@
 result=$?
 if [ ${result} == 0 ]; then
   cd bin
-  ./app_name_here
+  ./arg_workshop
 fi

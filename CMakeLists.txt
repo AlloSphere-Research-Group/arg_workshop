@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.29)
 
-project(project_name_here)
-set(APP_NAME app_name_here)
+project(arg_workshop)
+set(APP_NAME arg_workshop)
 
 # cmake scripts are kept in the cmake directory
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
@@ -21,18 +21,24 @@ if(MSVC)
 endif()
 
 # add source files to executable
-add_executable(${APP_NAME} src/main.cpp)
+# add_executable(${APP_NAME} src/0_vaomesh.cpp)
+# add_executable(${APP_NAME} src/1_shader_quad.cpp)
+# add_executable(${APP_NAME} src/2_shader_mesh.cpp)
+# add_executable(${APP_NAME} src/3_shader_texture.cpp)
+# add_executable(${APP_NAME} src/4_instance.cpp)
+add_executable(${APP_NAME} src/5_code_structure.cpp src/moreSrc.cpp)
+target_include_directories(${APP_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
 
 # add allolib to project & link
 add_subdirectory(allolib)
 target_link_libraries(${APP_NAME} PRIVATE alapp)
 
 # add al_ext to project & link
-if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/al_ext)
-  add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/al_ext)
-  get_target_property(AL_EXT_LIBRARIES al_ext AL_EXT_LIBRARIES)
-  target_link_libraries(${APP_NAME} PRIVATE ${AL_EXT_LIBRARIES})
-endif()
+# if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/al_ext)
+# add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/al_ext)
+# get_target_property(AL_EXT_LIBRARIES al_ext AL_EXT_LIBRARIES)
+# target_link_libraries(${APP_NAME} PRIVATE ${AL_EXT_LIBRARIES})
+# endif()
 
 # example line for find_package usage
 # find_package(Qt5Core REQUIRED CONFIG PATHS "C:/Qt/5.12.0/msvc2017_64/lib" NO_DEFAULT_PATH)
