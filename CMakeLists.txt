@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 cmake_minimum_required(VERSION 3.11)
 
-project(arg_workshop
+project(
+  arg_workshop
   DESCRIPTION "ARG code workshop"
   LANGUAGES CXX
   VERSION 0.0.1
@@ -26,51 +27,109 @@ if(MSVC)
 endif()
 
 # add source files to executable
-add_executable(arg_workshop)
-target_sources(arg_workshop PRIVATE
-  # src/0_vaomesh.cpp
-  # src/1_shader_quad.cpp
-  # src/2_shader_mesh.cpp
-  # src/3_shader_texture.cpp
-  # src/4_instance.cpp
-  # src/5_code_structure.cpp
-  # src/5_moreSrc.cpp
-  src/6_sphere.cpp
+add_executable(0_vaomesh)
+target_sources(0_vaomesh PRIVATE src/0_vaomesh.cpp)
+
+add_executable(1_shader_quad)
+target_sources(1_shader_quad PRIVATE src/1_shader_quad.cpp)
+
+add_executable(2_shader_mesh)
+target_sources(2_shader_mesh PRIVATE src/2_shader_mesh.cpp)
+
+add_executable(3_shader_texture)
+target_sources(3_shader_texture PRIVATE src/3_shader_texture.cpp)
+
+add_executable(4_instance)
+target_sources(4_instance PRIVATE src/4_instance.cpp)
+
+add_executable(5_code_structure)
+target_sources(
+  5_code_structure
+  PRIVATE src/5_code_structure.cpp src/5_moreSrc.cpp
+)
+target_sources(
+  5_code_structure
+  PUBLIC
+    FILE_SET HEADERS
+      BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
+      BASE_DIRS ${CMAKE_CURRENT_BINARY_DIR}/include
+      FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/arg_workshop/5_moreSrc.hpp
+)
+target_include_directories(
+  5_code_structure
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_include_directories(arg_workshop PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
-)
+add_executable(6_distributed)
+target_sources(6_distributed PRIVATE src/6_distributed.cpp)
+
+add_executable(7_shader_distributed)
+target_sources(7_shader_distributed PRIVATE src/7_shader_distributed.cpp)
 
 # add allolib to project & link
 add_subdirectory(allolib)
-target_link_libraries(arg_workshop PRIVATE alapp)
+target_link_libraries(0_vaomesh PRIVATE alapp)
+target_link_libraries(1_shader_quad PRIVATE alapp)
+target_link_libraries(2_shader_mesh PRIVATE alapp)
+target_link_libraries(3_shader_texture PRIVATE alapp)
+target_link_libraries(4_instance PRIVATE alapp)
+target_link_libraries(5_code_structure PRIVATE alapp)
+target_link_libraries(6_distributed PRIVATE alapp)
+target_link_libraries(7_shader_distributed PRIVATE alapp)
 
 # add al_ext to project & link
 # if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/al_ext)
 # add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/al_ext)
 # get_target_property(AL_EXT_LIBRARIES al_ext AL_EXT_LIBRARIES)
-# target_link_libraries(arg_workshop PRIVATE ${AL_EXT_LIBRARIES})
+# target_link_libraries(${TARGET_NAME_HERE} PRIVATE ${AL_EXT_LIBRARIES})
 # endif()
 
 # example of submodule library usage
 # add_subdirectory(external/multi350)
-# target_link_libraries(arg_workshop PUBLIC multi350)
+# target_link_libraries(${TARGET_NAME_HERE} PUBLIC multi350)
 
 # example of find_package usage
 # find_package(OpenImageIO REQUIRED)
 # if(MSVC)
-#   target_compile_options(arg_workshop PUBLIC /utf-8)
+#   target_compile_options(${TARGET_NAME_HERE} PUBLIC /utf-8)
 # endif()
-# target_link_libraries(arg_workshop PUBLIC OpenImageIO::OpenImageIO)
-
+# target_link_libraries(${TARGET_NAME_HERE} PUBLIC OpenImageIO::OpenImageIO)
 
 # binaries are put into the ./bin directory by default
-set_target_properties(arg_workshop PROPERTIES
-  CXX_STANDARD 20
-  CXX_STANDARD_REQUIRED ON
-  CXX_EXTENSIONS OFF
-  RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin
-  RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/bin
-  RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_SOURCE_DIR}/bin
+set_target_properties(
+  0_vaomesh
+  1_shader_quad
+  2_shader_mesh
+  3_shader_texture
+  4_instance
+  5_code_structure
+  6_distributed
+  7_shader_distributed
+  PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/bin
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_SOURCE_DIR}/bin
 )
+
+# needed because 4_instance has some c++17 features (inline variables)
+# however some machines in sphere does not have c++17 support
+set_target_properties(
+  4_instance
+  PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF
+)
+
+# install(
+#   TARGETS
+#     0_vaomesh
+#     1_shader_quad
+#     2_shader_mesh
+#     3_shader_texture
+#     4_instance
+#     5_code_structure
+#     6_distributed
+#     7_shader_distributed
+#   LIBRARY DESTINATION lib
+#   ARCHIVE DESTINATION lib
+#   RUNTIME DESTINATION bin
+#   INCLUDES DESTINATION include
+# )

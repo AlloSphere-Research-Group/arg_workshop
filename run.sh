@@ -9,5 +9,5 @@
 result=$?
 if [ ${result} == 0 ]; then
   cd bin
-  ./arg_workshop
+  ./7_shader_distributed
 fi
