@@ -10,6 +10,8 @@
 #include "al/graphics/al_Shapes.hpp"
 #include "al/graphics/al_Texture.hpp"
 #include "al/graphics/al_VAOMesh.hpp"
+#include "al/math/al_Matrix4.hpp"
+#include "arg_workshop/renderer.hpp"
 
 using namespace al;
 
@@ -18,8 +20,8 @@ inline constexpr unsigned int g_instanceNum = 500;
 // inline constexpr unsigned int g_instanceNum = 500000;
 
 struct MyApp : App {
+  odeon::Renderer renderer;
   VAOMesh mesh;
-  ShaderManager shaderManager;
   Texture texture;
   BufferObject buffer;  // VBO
   std::vector<Vec3f> meshPositions;
@@ -35,10 +37,9 @@ struct MyApp : App {
     searchPaths.addRelativePath("shaders", false);
     searchPaths.addRelativePath("images", false);
 
-    shaderManager.setSearchPaths(searchPaths);
-    shaderManager.add("instance", "4_instance.vert", "4_instance.frag");
+    renderer.init(searchPaths);
+    renderer.shaderManager.add("dna", "dna.vert", "dna.frag");
 
-    // loadImage("path_to_image");
     loadImage(searchPaths.find("pattern.png").filepath());
 
     addTexSphere(mesh, 1);
@@ -91,57 +92,51 @@ struct MyApp : App {
 
   void onAnimate(double dt) override
   {
-    shaderManager.update();
+    renderer.update();
 
     time += dt;
 
     // for dynamic draw
-    // float inverse = 1.f / (float)g_instanceNum;
-    // for (unsigned int i = 0; i < g_instanceNum; ++i) {
-    //   meshPositions[i] =
-    //       Vec3f(100 * (i * inverse) * std::cosf(10.f * i * inverse * time),
-    //             100 * (i * inverse) * std::sinf(10.f * i * inverse * time),
-    //             0);
-    // }
+    float inverse = 1.f / (float)g_instanceNum;
+    for (unsigned int i = 0; i < g_instanceNum; ++i) {
+      meshPositions[i] =
+          Vec3f(100 * (i * inverse) * std::cosf(10.f * i * inverse * time),
+                100 * (i * inverse) * std::sinf(10.f * i * inverse * time), 0);
+    }
 
-    // buffer.bind();
-    // buffer.data(meshPositions.size() * 3 * sizeof(float),
-    // meshPositions.data());
+    buffer.bind();
+    buffer.data(meshPositions.size() * 3 * sizeof(float), meshPositions.data());
   }
 
   void onDraw(Graphics& g) override
   {
-    g.clear();
-    g.depthTesting(true);
+    auto* shader = &renderer.shaderManager.get("dna");
 
-    texture.bind(0);
+    renderer.draw(g, fbWidth(), fbHeight(), shader, [&](int face) {
+      g.clear();
+      g.depthTesting(true);
 
-    auto& shader = shaderManager.get("instance");
-    shader.use();
+      shader->uniform("u_projMatrix", Matrix4f::perspective(90, 1, 0.02, 100));
+      shader->uniform("u_viewMatrix",
+                      cubemapTransformMat<float>(face) * view_mat(nav()));
 
-    shader.uniform("u_projMatrix", g.projMatrix());
-    shader.uniform("u_viewMatrix", g.viewMatrix());
-    shader.uniform("u_modelMatrix", g.modelMatrix());
-    shader.uniform("u_imageTex", 0);
+      g.pushMatrix();
 
-    // instanced rendering
-    mesh.vao().bind();
-    mesh.indexBuffer().bind();  // needed for mesh using indices
-    // raw openGL call for instanced rendering
-    // for non-indexed meshes, use glDrawArraysInstanced instead
-    glDrawElementsInstanced(GL_TRIANGLES, mesh.indices().size(),
-                            GL_UNSIGNED_INT, 0, meshPositions.size());
+      texture.bind(0);
+      shader->uniform("u_modelMatrix", g.modelMatrix());
+      shader->uniform("u_imageTex", 0);
 
-    // // non-instanced rendering
-    // for (int i = 0; i < g_instanceNum; ++i) {
-    //   g.pushMatrix();
-    //   g.translate(meshPositions[i]);
-    //   shader.uniform("u_modelMatrix", g.modelMatrix());
-    //   mesh.draw();
-    //   g.popMatrix();
-    // }
+      // instanced rendering
+      mesh.vao().bind();
+      mesh.indexBuffer().bind();  // needed for mesh using indices
+      // raw openGL call for instanced rendering
+      // for non-indexed meshes, use glDrawArraysInstanced instead
+      glDrawElementsInstanced(GL_TRIANGLES, mesh.indices().size(),
+                              GL_UNSIGNED_INT, 0, meshPositions.size());
 
-    texture.unbind();
+      texture.unbind();
+      g.popMatrix();
+    });
   }
 };
 

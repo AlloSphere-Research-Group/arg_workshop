@@ -27,55 +27,27 @@ if(MSVC)
 endif()
 
 # add source files to executable
-add_executable(0_vaomesh)
-target_sources(0_vaomesh PRIVATE src/0_vaomesh.cpp)
-
-add_executable(1_shader_quad)
-target_sources(1_shader_quad PRIVATE src/1_shader_quad.cpp)
-
-add_executable(2_shader_mesh)
-target_sources(2_shader_mesh PRIVATE src/2_shader_mesh.cpp)
-
-add_executable(3_shader_texture)
-target_sources(3_shader_texture PRIVATE src/3_shader_texture.cpp)
-
-add_executable(4_instance)
-target_sources(4_instance PRIVATE src/4_instance.cpp)
-
-add_executable(5_code_structure)
+add_executable(eqr)
 target_sources(
-  5_code_structure
-  PRIVATE src/5_code_structure.cpp src/5_moreSrc.cpp
+  eqr
+  PRIVATE src/main.cpp src/renderer.cpp
 )
 target_sources(
-  5_code_structure
+  eqr
   PUBLIC
     FILE_SET HEADERS
       BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
       BASE_DIRS ${CMAKE_CURRENT_BINARY_DIR}/include
-      FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/arg_workshop/5_moreSrc.hpp
+      FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/arg_workshop/renderer.hpp
 )
 target_include_directories(
-  5_code_structure
+  eqr
   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-add_executable(6_distributed)
-target_sources(6_distributed PRIVATE src/6_distributed.cpp)
-
-add_executable(7_shader_distributed)
-target_sources(7_shader_distributed PRIVATE src/7_shader_distributed.cpp)
-
 # add allolib to project & link
 add_subdirectory(allolib)
-target_link_libraries(0_vaomesh PRIVATE alapp)
-target_link_libraries(1_shader_quad PRIVATE alapp)
-target_link_libraries(2_shader_mesh PRIVATE alapp)
-target_link_libraries(3_shader_texture PRIVATE alapp)
-target_link_libraries(4_instance PRIVATE alapp)
-target_link_libraries(5_code_structure PRIVATE alapp)
-target_link_libraries(6_distributed PRIVATE alapp)
-target_link_libraries(7_shader_distributed PRIVATE alapp)
+target_link_libraries(eqr PRIVATE alapp)
 
 # add al_ext to project & link
 # if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/al_ext)
@@ -97,16 +69,9 @@ target_link_libraries(7_shader_distributed PRIVATE alapp)
 
 # binaries are put into the ./bin directory by default
 set_target_properties(
-  0_vaomesh
-  1_shader_quad
-  2_shader_mesh
-  3_shader_texture
-  4_instance
-  5_code_structure
-  6_distributed
-  7_shader_distributed
+  eqr
   PROPERTIES
-    CXX_STANDARD 17
+    CXX_STANDARD 20
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin
@@ -116,14 +81,7 @@ set_target_properties(
 
 # install(
 #   TARGETS
-#     0_vaomesh
-#     1_shader_quad
-#     2_shader_mesh
-#     3_shader_texture
-#     4_instance
-#     5_code_structure
-#     6_distributed
-#     7_shader_distributed
+#     eqr
 #   LIBRARY DESTINATION lib
 #   ARCHIVE DESTINATION lib
 #   RUNTIME DESTINATION bin
