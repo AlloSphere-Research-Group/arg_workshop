@@ -9,5 +9,5 @@
 result=$?
 if [ ${result} == 0 ]; then
   cd bin
-  ./7_shader_distributed
+  ./9_lighting
 fi

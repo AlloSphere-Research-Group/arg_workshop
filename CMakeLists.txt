@@ -26,18 +26,18 @@ if(MSVC)
   # set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /STACK:4194304")
 endif()
 
-add_executable(7_shader_distributed)
-target_sources(7_shader_distributed PRIVATE src/7_shader_distributed.cpp)
+add_executable(9_lighting)
+target_sources(9_lighting PRIVATE src/9_lighting.cpp)
 
 # add allolib to project & link
 add_subdirectory(allolib)
-target_link_libraries(7_shader_distributed PRIVATE alapp)
+target_link_libraries(9_lighting PRIVATE alapp)
 
 # binaries are put into the ./bin directory by default
 set_target_properties(
-  7_shader_distributed
+  9_lighting
   PROPERTIES
-    CXX_STANDARD 17
+    CXX_STANDARD 14
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin

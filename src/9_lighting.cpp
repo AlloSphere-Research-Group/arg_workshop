@@ -6,7 +6,6 @@
 #include "al/graphics/al_Shapes.hpp"
 #include "al/graphics/al_Texture.hpp"
 #include "al/graphics/al_VAOMesh.hpp"
-#include "al/spatial/al_Pose.hpp"
 #include "al/ui/al_ParameterGUI.hpp"
 
 using namespace al;
@@ -16,11 +15,9 @@ struct SphereApp : DistributedApp {
   Texture texture;
   ShaderManager shaderManager;
 
-  ParameterPose pose{"pose", "sphere"};
-  Parameter phase{"phase", "sphere", 0.f, 0.f, 1.f};
-  Parameter period{"period", "sphere", 10.f, 0.1f, 100.f};
-  ParameterColor color{"color", "sphere", Color(1.f, 0.5f, 0.5f)};
-  Parameter mix{"mix", "sphere", 0.5f, 0.f, 1.f};
+  ParameterPose pose{"pose", ""};
+  Parameter doorAngle{"doorAngle", "", 0.f, 0.f, 120.f};
+  ParameterColor lightColor{"lightColor", "", Color(0.5f, 0.5f, 0.5f)};
 
   void onCreate() override
   {
@@ -33,7 +30,7 @@ struct SphereApp : DistributedApp {
     searchPaths.addRelativePath("images", false);
 
     shaderManager.setSearchPaths(searchPaths);
-    shaderManager.add("sphere", "7_sphere.vert", "7_sphere.frag");
+    shaderManager.add("lighting", "9_lighting.vert", "9_lighting.frag");
 
     const auto& imagePath = searchPaths.find("pattern.png").filepath();
 
@@ -54,10 +51,10 @@ struct SphereApp : DistributedApp {
     texture.submit(imageData.array().data(), GL_RGBA,
                    GL_UNSIGNED_INT_8_8_8_8_REV);
 
-    addTexCylinder(mesh);
+    addCuboid(mesh, 5.f, 4.f, 15.f, true);
     mesh.update();
 
-    parameterServer() << pose << phase << period << color << mix;
+    parameterServer() << pose << doorAngle << lightColor;
 
     if (isPrimary()) {
       imguiInit();
@@ -82,17 +79,14 @@ struct SphereApp : DistributedApp {
       nav().set(pose.get());
     }
 
-    phase.set(phase.get() + dt / period.get());
-    if (phase.get() >= 1.f) phase.set(phase.get() - 1.f);
+    // animate doorAngle here if needed
 
     if (isPrimary()) {
       imguiBeginFrame();
       ImGui::Begin("Sphere Parameters");
-      ParameterGUI::draw(&pose);
-      ParameterGUI::draw(&phase);
-      ParameterGUI::draw(&period);
-      ParameterGUI::draw(&color);
-      ParameterGUI::draw(&mix);
+      // ParameterGUI::draw(&pose);
+      ParameterGUI::draw(&doorAngle);
+      ParameterGUI::draw(&lightColor);
       ImGui::End();
       imguiEndFrame();
     }
@@ -103,20 +97,19 @@ struct SphereApp : DistributedApp {
     g.clear(0, 0, 0);
     g.depthTesting(true);
 
-    auto& shader = shaderManager.get("sphere");
+    auto& shader = shaderManager.get("lighting");
     shader.use();
 
     texture.bind(0);
     g.pushMatrix();
-    g.rotate(phase.get() * 360, 0, 1, 0);
 
     shader.uniform("u_modelMatrix", g.modelMatrix());
     shader.uniform("u_viewMatrix", g.viewMatrix());
     shader.uniform("u_projMatrix", g.projMatrix());
-    shader.uniform("u_color", color.get());
-    shader.uniform("u_mix", mix.get());
     shader.uniform("u_eyeSep", lens().eyeSep());
     shader.uniform("u_focLen", lens().focalLength());
+    shader.uniform("u_doorAngle", doorAngle.get());
+    shader.uniform("u_lightColor", lightColor.get());
     shader.uniform("u_imageTex", 0);
     mesh.draw();
 
