@@ -75,6 +75,9 @@ target_sources(
 )
 target_include_directories(8_eqr PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
+add_executable(9_lighting)
+target_sources(9_lighting PRIVATE src/9_lighting.cpp)
+
 # add allolib to project & link
 add_subdirectory(allolib EXCLUDE_FROM_ALL)
 target_link_libraries(0_vaomesh PRIVATE alapp)
@@ -86,7 +89,7 @@ target_link_libraries(5_code_structure PRIVATE alapp)
 target_link_libraries(6_distributed PRIVATE alapp)
 target_link_libraries(7_shader_distributed PRIVATE alapp)
 target_link_libraries(8_eqr PRIVATE alapp)
-
+target_link_libraries(9_lighting PRIVATE alapp)
 # add al_ext to project & link
 # if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/al_ext)
 # add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/al_ext)
@@ -116,6 +119,7 @@ set_target_properties(
   6_distributed
   7_shader_distributed
   8_eqr
+  9_lighting
   PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED ON
@@ -136,6 +140,7 @@ install(
     6_distributed
     7_shader_distributed
     8_eqr
+    9_lighting
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION .
