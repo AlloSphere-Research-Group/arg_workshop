@@ -1,0 +1,190 @@
+// SPDX-FileCopyrightText: 2025 AlloSphere Research Group <allosphere@ucsb.edu>
+// SPDX-License-Identifier: BSD-3-Clause
+#include <cmath>
+#include <vector>
+
+#include "al/app/al_App.hpp"
+#include "al/graphics/al_BufferObject.hpp"
+#include "al/graphics/al_Image.hpp"
+#include "al/graphics/al_ShaderManager.hpp"
+#include "al/graphics/al_Shapes.hpp"
+#include "al/graphics/al_Texture.hpp"
+#include "al/graphics/al_VAOMesh.hpp"
+#include "al/math/al_Matrix4.hpp"
+#include "al/ui/al_ParameterGUI.hpp"
+#include "arg_workshop/8_renderer.hpp"
+
+using namespace al;
+
+// number of mesh instances to render
+inline constexpr unsigned int g_instanceNum = 500;
+
+struct MyApp : App {
+  // part of the odeon library that is currently being developed
+  odeon::Renderer renderer;
+  VAOMesh mesh;
+  Texture texture;
+  BufferObject buffer;  // VBO
+  std::vector<Vec3f> meshPositions;
+  double time{0};
+
+  Parameter helixRadius{"helixRadius", "eqr", 1.2f, 0.1f, 5.0f};
+  Parameter helixHeight{"helixHeight", "eqr", 16.0f, 1.0f, 50.0f};
+  Parameter twists{"twists", "eqr", 7.0f, 1.0f, 20.0f};
+  Parameter twistSpeed{"twistSpeed", "eqr", 0.8f, 0.1f, 5.0f};
+  Parameter scale{"scale", "eqr", 0.1f, 0.01f, 0.5f};
+
+  void onCreate() override
+  {
+    lens().near(0.1).far(100).fovy(45);
+    nav().pos(0, 0, 4);
+
+    // where to find images and shaders
+    SearchPaths searchPaths;
+    searchPaths.addAppPaths();
+    searchPaths.addRelativePath("shaders", false);
+    searchPaths.addRelativePath("images", false);
+
+    // init also load in shader that handles warping and eqr rendering
+    renderer.init(searchPaths);
+    // load the shader that will render the main scene
+    renderer.shaderManager.add("dna", "8_dna.vert", "8_dna.frag");
+
+    // texture image that is used in the main shader
+    loadImage(searchPaths.find("pattern.png").filepath());
+
+    // making sure mesh data contains texture coordinates
+    addTexSphere(mesh, 1);
+    // need to call update since we're using VAOMesh
+    mesh.update();
+
+    // initializing VBO
+    // https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBufferData.xhtml
+    buffer.bufferType(GL_ARRAY_BUFFER);  // standard for VBO
+    // buffer.usage(GL_STATIC_DRAW);        // modified once, used for drawing
+    buffer.usage(GL_DYNAMIC_DRAW);  // modified frequently, used for drawing
+    buffer.create();
+
+    // configuring mesh's VAO and pointing to the VBO
+    // check al_VAOMesh.hpp for details
+    auto& meshVAO = mesh.vao();
+    meshVAO.bind();
+    meshVAO.enableAttrib(4);
+    meshVAO.attribPointer(4, buffer, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribDivisor(4, 1);
+
+    meshPositions.resize(g_instanceNum);
+
+    // helper function to modify position data
+    generateDNA(meshPositions, time);
+
+    // sending position data to GPU as part of VBO that's bound to mesh's VAO
+    buffer.bind();
+    buffer.data(meshPositions.size() * 3 * sizeof(float), meshPositions.data());
+
+    imguiInit();
+  }
+
+  void onExit() { imguiShutdown(); }
+
+  void loadImage(const std::string& imagePath)
+  {
+    auto imageData = Image(imagePath);
+    if (imageData.array().size() > 0) {
+      std::cout << "Loaded image: " << imagePath << std::endl;
+    }
+    else {
+      std::cerr << "Failed to load image: " << imagePath << std::endl;
+      return;
+    }
+
+    texture.filter(Texture::LINEAR);
+    texture.create2D(imageData.width(), imageData.height());
+    texture.submit(imageData.array().data(), GL_RGBA,
+                   GL_UNSIGNED_INT_8_8_8_8_REV);
+  }
+
+  void generateDNA(std::vector<Vec3f>& positions, double time)
+  {
+    float inverse = 1.f / (float)g_instanceNum;
+    for (unsigned int i = 0; i < g_instanceNum; ++i) {
+      float t = i * inverse;
+      float strandPhase = (i % 2 == 0) ? 0.0f : M_PI;
+      float angle = (M_2PI * twists.get() * t) + strandPhase +
+                    (twistSpeed.get() * (float)time);
+      float z = (t - 0.5f) * helixHeight.get();
+      meshPositions[i] = Vec3f(helixRadius.get() * std::cos(angle),
+                               helixRadius.get() * std::sin(angle), z);
+    }
+  }
+
+  void onAnimate(double dt) override
+  {
+    renderer.update();
+
+    time += dt;
+
+    // modifying position based on time to create animation effect
+    generateDNA(meshPositions, time);
+
+    // sending the position data to the buffer
+    buffer.bind();
+    buffer.data(meshPositions.size() * 3 * sizeof(float), meshPositions.data());
+
+    imguiBeginFrame();
+    ImGui::Begin("DNA Parameters");
+    ParameterGUI::draw(&helixRadius);
+    ParameterGUI::draw(&helixHeight);
+    ParameterGUI::draw(&twists);
+    ParameterGUI::draw(&twistSpeed);
+    ParameterGUI::draw(&scale);
+    ImGui::End();
+    imguiEndFrame();
+  }
+
+  void onDraw(Graphics& g) override
+  {
+    auto* shader = &renderer.shaderManager.get("dna");
+
+    // send the drawing function to the renderer, which will call it for each
+    // cubemap face to capture the scene from each direction and render to the
+    // cubemap texture, and render an eqr representation to the screen
+    renderer.draw(g, fbWidth(), fbHeight(), shader, [&](int face) {
+      g.clear();
+      g.depthTesting(true);
+
+      // set projection matrix to fit cubemap correctly
+      shader->uniform("u_projMatrix", Matrix4f::perspective(90, 1, 0.02, 100));
+      // set view matrix to look in the right direction for each cubemap face
+      shader->uniform("u_viewMatrix",
+                      cubemapTransformMat<float>(face) * view_mat(nav()));
+
+      g.pushMatrix();
+
+      texture.bind(0);
+      shader->uniform("u_scale", scale.get());
+      shader->uniform("u_imageTex", 0);
+      shader->uniform("u_modelMatrix", g.modelMatrix());
+
+      // instanced rendering
+      mesh.vao().bind();
+      mesh.indexBuffer().bind();  // needed for mesh using indices
+      // raw openGL call for instanced rendering
+      // for non-indexed meshes, use glDrawArraysInstanced instead
+      glDrawElementsInstanced(GL_TRIANGLES, mesh.indices().size(),
+                              GL_UNSIGNED_INT, 0, meshPositions.size());
+
+      texture.unbind();
+      g.popMatrix();
+    });
+
+    imguiDraw();
+  }
+};
+
+int main()
+{
+  MyApp app;
+  app.dimensions(600, 400);
+  app.start();
+}

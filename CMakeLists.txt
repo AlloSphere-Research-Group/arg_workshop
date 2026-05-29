@@ -46,10 +46,7 @@ add_executable(5_code_structure)
 target_sources(
   5_code_structure
   PRIVATE src/5_code_structure.cpp src/5_moreSrc.cpp
-)
-target_sources(
-  5_code_structure
-  PUBLIC
+  PRIVATE
     FILE_SET HEADERS
       BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
       BASE_DIRS ${CMAKE_CURRENT_BINARY_DIR}/include
@@ -57,7 +54,7 @@ target_sources(
 )
 target_include_directories(
   5_code_structure
-  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 add_executable(6_distributed)
@@ -66,8 +63,20 @@ target_sources(6_distributed PRIVATE src/6_distributed.cpp)
 add_executable(7_shader_distributed)
 target_sources(7_shader_distributed PRIVATE src/7_shader_distributed.cpp)
 
+add_executable(8_eqr)
+target_sources(
+  8_eqr
+  PRIVATE src/8_eqr.cpp src/8_renderer.cpp
+  PRIVATE
+    FILE_SET HEADERS
+      BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
+      BASE_DIRS ${CMAKE_CURRENT_BINARY_DIR}/include
+      FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/arg_workshop/8_renderer.hpp
+)
+target_include_directories(8_eqr PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
 # add allolib to project & link
-add_subdirectory(allolib)
+add_subdirectory(allolib EXCLUDE_FROM_ALL)
 target_link_libraries(0_vaomesh PRIVATE alapp)
 target_link_libraries(1_shader_quad PRIVATE alapp)
 target_link_libraries(2_shader_mesh PRIVATE alapp)
@@ -76,6 +85,7 @@ target_link_libraries(4_instance PRIVATE alapp)
 target_link_libraries(5_code_structure PRIVATE alapp)
 target_link_libraries(6_distributed PRIVATE alapp)
 target_link_libraries(7_shader_distributed PRIVATE alapp)
+target_link_libraries(8_eqr PRIVATE alapp)
 
 # add al_ext to project & link
 # if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/al_ext)
@@ -105,6 +115,7 @@ set_target_properties(
   5_code_structure
   6_distributed
   7_shader_distributed
+  8_eqr
   PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED ON
@@ -114,18 +125,19 @@ set_target_properties(
     RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_SOURCE_DIR}/bin
 )
 
-# install(
-#   TARGETS
-#     0_vaomesh
-#     1_shader_quad
-#     2_shader_mesh
-#     3_shader_texture
-#     4_instance
-#     5_code_structure
-#     6_distributed
-#     7_shader_distributed
-#   LIBRARY DESTINATION lib
-#   ARCHIVE DESTINATION lib
-#   RUNTIME DESTINATION bin
-#   INCLUDES DESTINATION include
-# )
+install(
+  TARGETS
+    0_vaomesh
+    1_shader_quad
+    2_shader_mesh
+    3_shader_texture
+    4_instance
+    5_code_structure
+    6_distributed
+    7_shader_distributed
+    8_eqr
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION .
+  INCLUDES DESTINATION include
+)
