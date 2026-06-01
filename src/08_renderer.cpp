@@ -1,12 +1,12 @@
-// SPDX-FileCopyrightText: 2026 Kon Hyong Kim <konhyong@gmail.com>
+// SPDX-FileCopyrightText: 2026 AlloSphere Research Group <allosphere@ucsb.edu>
 // SPDX-License-Identifier: BSD-3-Clause
-#include "arg_workshop/8_renderer.hpp"
+#include "arg_workshop/08_renderer.hpp"
 
 namespace odeon {
 void Renderer::init(al::SearchPaths& searchPaths)
 {
   shaderManager.setSearchPaths(searchPaths);
-  shaderManager.add("eqr", "8_eqr.vert", "8_eqr.frag");
+  shaderManager.add("eqr", "08_eqr.vert", "08_eqr.frag");
 
   cubeMap.filter(al::Texture::LINEAR);
   cubeMap.createCubemap(2048);

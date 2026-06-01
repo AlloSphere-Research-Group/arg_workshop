@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2025 AlloSphere Research Group <allosphere@ucsb.edu>
+// SPDX-FileCopyrightText: 2026 AlloSphere Research Group <allosphere@ucsb.edu>
 // SPDX-License-Identifier: BSD-3-Clause
 #include <cmath>
 #include <vector>
@@ -12,7 +12,7 @@
 #include "al/graphics/al_VAOMesh.hpp"
 #include "al/math/al_Matrix4.hpp"
 #include "al/ui/al_ParameterGUI.hpp"
-#include "arg_workshop/8_renderer.hpp"
+#include "arg_workshop/08_renderer.hpp"
 
 using namespace al;
 
@@ -48,7 +48,7 @@ struct MyApp : App {
     // init also load in shader that handles warping and eqr rendering
     renderer.init(searchPaths);
     // load the shader that will render the main scene
-    renderer.shaderManager.add("dna", "8_dna.vert", "8_dna.frag");
+    renderer.shaderManager.add("dna", "08_dna.vert", "08_dna.frag");
 
     // texture image that is used in the main shader
     loadImage(searchPaths.find("pattern.png").filepath());

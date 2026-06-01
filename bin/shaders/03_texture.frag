@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2025 AlloSphere Research Group <allosphere@ucsb.edu>
+// SPDX-FileCopyrightText: 2026 AlloSphere Research Group <allosphere@ucsb.edu>
 // SPDX-License-Identifier: BSD-3-Clause
 #version 330
 

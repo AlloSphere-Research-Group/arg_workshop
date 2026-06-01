@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2025 AlloSphere Research Group <allosphere@ucsb.edu>
+// SPDX-FileCopyrightText: 2026 AlloSphere Research Group <allosphere@ucsb.edu>
 // SPDX-License-Identifier: BSD-3-Clause
 #include "al/app/al_App.hpp"
 #include "al/graphics/al_Image.hpp"
@@ -25,7 +25,7 @@ struct MyApp : App {
     searchPaths.addRelativePath("images", false);
 
     shaderManager.setSearchPaths(searchPaths);
-    shaderManager.add("texture", "3_texture.vert", "3_texture.frag");
+    shaderManager.add("texture", "03_texture.vert", "03_texture.frag");
 
     // loadImage("path_to_image");
     loadImage(searchPaths.find("pattern.png").filepath());

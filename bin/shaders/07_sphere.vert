@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2025 AlloSphere Research Group <allosphere@ucsb.edu>
+// SPDX-FileCopyrightText: 2026 AlloSphere Research Group <allosphere@ucsb.edu>
 // SPDX-License-Identifier: BSD-3-Clause
 #version 330
 
@@ -10,11 +10,8 @@ uniform float u_focLen;
 
 layout(location = 0) in vec3 a_position;
 layout(location = 2) in vec2 a_texCoord;
-layout(location = 3) in vec3 a_normal;
 
-out vec3 v_position;
 out vec2 v_texCoord;
-out vec3 v_normal;
 
 vec4 stereo_displace(vec4 v, float e, float f) {
   // eye to vertex distance
@@ -34,10 +31,7 @@ vec4 stereo_displace(vec4 v, float e, float f) {
 }
 
 void main() {
-  vec4 pos = u_modelMatrix * vec4(a_position, 1.0);
-  gl_Position = u_projMatrix * stereo_displace(u_viewMatrix * pos, u_eyeSep, u_focLen);
-  v_position = pos.xyz;
+  vec4 pos = u_viewMatrix * u_modelMatrix * vec4(a_position, 1.0);
+  gl_Position = u_projMatrix * stereo_displace(pos, u_eyeSep, u_focLen);
   v_texCoord = a_texCoord;
-  vec4 norm = u_modelMatrix * vec4(a_normal, 1.0);
-  v_normal = norm.xyz;
 }

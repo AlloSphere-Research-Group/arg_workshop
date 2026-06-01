@@ -1,7 +1,7 @@
-// SPDX-FileCopyrightText: 2025 AlloSphere Research Group <allosphere@ucsb.edu>
+// SPDX-FileCopyrightText: 2026 AlloSphere Research Group <allosphere@ucsb.edu>
 // SPDX-License-Identifier: BSD-3-Clause
 #include "al/app/al_App.hpp"
-#include "arg_workshop/5_moreSrc.hpp"  // different header files
+#include "arg_workshop/05_moreSrc.hpp"  // different header files
 // path can be included in target_include_directories
 // cpp=translation unit=src files need to specified in add_executable
 

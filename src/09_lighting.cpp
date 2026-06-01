@@ -30,7 +30,7 @@ struct SphereApp : DistributedApp {
     searchPaths.addRelativePath("images", false);
 
     shaderManager.setSearchPaths(searchPaths);
-    shaderManager.add("lighting", "9_lighting.vert", "9_lighting.frag");
+    shaderManager.add("lighting", "09_lighting.vert", "09_lighting.frag");
 
     const auto& imagePath = searchPaths.find("pattern.png").filepath();
 

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2025 AlloSphere Research Group <allosphere@ucsb.edu>
+// SPDX-FileCopyrightText: 2026 AlloSphere Research Group <allosphere@ucsb.edu>
 // SPDX-License-Identifier: BSD-3-Clause
 #include <cmath>
 #include <vector>
@@ -36,7 +36,7 @@ struct MyApp : App {
     searchPaths.addRelativePath("images", false);
 
     shaderManager.setSearchPaths(searchPaths);
-    shaderManager.add("instance", "4_instance.vert", "4_instance.frag");
+    shaderManager.add("instance", "04_instance.vert", "04_instance.frag");
 
     // loadImage("path_to_image");
     loadImage(searchPaths.find("pattern.png").filepath());

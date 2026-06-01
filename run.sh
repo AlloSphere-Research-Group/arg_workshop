@@ -9,5 +9,5 @@
 result=$?
 if [ ${result} == 0 ]; then
   cd bin
-  ./9_lighting
+  ./10_eqr_ray
 fi

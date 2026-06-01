@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2026 AlloSphere Research Group <allosphere@ucsb.edu>
+// SPDX-License-Identifier: BSD-3-Clause
 #version 330
 
 layout(location = 0) in vec3 position;
